@@ -1,0 +1,110 @@
+<mat-toolbar class="header">
+  @if (isMobile()) {
+    <button
+      mat-icon-button
+      aria-label="Open navigation"
+      aria-controls="main-navigation"
+      [attr.aria-expanded]="navigationOpen()"
+      (click)="menuToggle.emit()"
+    >
+      <mat-icon aria-hidden="true">menu</mat-icon>
+    </button>
+  }
+
+  <div class="header-title">
+    <strong>BoardFlow</strong>
+    <span>Committee workspace</span>
+  </div>
+
+  <span class="spacer"></span>
+
+  <div class="header-actions">
+    <button
+      mat-icon-button
+      class="theme-button"
+      (click)="themeService.toggle()"
+      [attr.aria-label]="
+        themeService.theme() === 'light' ? 'Switch to dark mode' : 'Switch to light mode'
+      "
+    >
+      <mat-icon aria-hidden="true">
+        {{ themeService.theme() === 'light' ? 'dark_mode' : 'light_mode' }}
+      </mat-icon>
+    </button>
+
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="notificationMenu"
+      [attr.aria-label]="'Notifications, ' + unreadCount() + ' unread'"
+    >
+      <mat-icon
+        aria-hidden="true"
+        [matBadge]="unreadCount()"
+        [matBadgeHidden]="unreadCount() === 0"
+        matBadgeSize="small"
+      >
+        notifications_none
+      </mat-icon>
+    </button>
+
+    <button
+      mat-button
+      class="profile-button"
+      [matMenuTriggerFor]="profileMenu"
+      aria-label="Open demo profile menu"
+    >
+      <span class="profile-content">
+        <span class="avatar" aria-hidden="true">
+          {{ user.initials }}
+        </span>
+
+        <span class="profile-name">{{ user.name }}</span>
+
+        <mat-icon aria-hidden="true">expand_more</mat-icon>
+      </span>
+    </button>
+  </div>
+</mat-toolbar>
+
+<mat-menu #notificationMenu="matMenu" xPosition="before">
+  <button mat-menu-item disabled>Demo notifications</button>
+
+  <button mat-menu-item [disabled]="unreadCount() === 0" (click)="markAllAsRead()">
+    <mat-icon>done_all</mat-icon>
+    <span>Mark all as read</span>
+  </button>
+
+  @for (item of notifications(); track item.id) {
+    <button
+      mat-menu-item
+      (click)="markAsRead(item.id)"
+      [attr.aria-label]="item.message + (item.read ? ' Read.' : ' Unread. Mark as read.')"
+    >
+      <mat-icon aria-hidden="true">
+        {{ item.read ? 'drafts' : 'mark_email_unread' }}
+      </mat-icon>
+
+      <span>{{ item.message }}</span>
+    </button>
+  }
+</mat-menu>
+
+<mat-menu #profileMenu="matMenu" xPosition="before">
+  <button mat-menu-item disabled>
+    {{ user.name }}
+  </button>
+
+  <button mat-menu-item disabled>
+    {{ user.role }}
+  </button>
+
+  <button mat-menu-item (click)="themeService.toggle()">
+    <mat-icon aria-hidden="true">contrast</mat-icon>
+    <span> Use {{ themeService.theme() === 'light' ? 'dark' : 'light' }} theme </span>
+  </button>
+
+  <button mat-menu-item disabled>
+    <mat-icon aria-hidden="true">info_outline</mat-icon>
+    <span>Demo account — authentication pending</span>
+  </button>
+</mat-menu>

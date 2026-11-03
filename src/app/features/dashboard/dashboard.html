@@ -1,0 +1,100 @@
+<section aria-labelledby="dashboard-title">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">YOUR WORKSPACE</p>
+      <h1 id="dashboard-title">Committee overview</h1>
+      <p class="subtitle">A clear view of meetings, agendas and decisions.</p>
+    </div>
+
+    <span class="sample-label">Sample data</span>
+  </div>
+
+  <div class="filter-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search meetings</mat-label>
+      <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+      <input matInput type="search" [formControl]="searchControl" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="status-field">
+      <mat-label>Status</mat-label>
+      <mat-select [formControl]="statusControl">
+        <mat-option value="All">All statuses</mat-option>
+        <mat-option value="Draft">Draft</mat-option>
+        <mat-option value="In review">In review</mat-option>
+        <mat-option value="Approved">Approved</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <p class="results-count" role="status">{{ filteredMeetings().length }} meetings shown</p>
+
+  <div class="meeting-grid">
+    @for (meeting of filteredMeetings(); track meeting.id) {
+      <mat-card
+        appearance="outlined"
+        class="meeting-card"
+        [attr.aria-labelledby]="'meeting-' + meeting.id"
+      >
+        <mat-card-content>
+          <div class="card-top">
+            <span
+              class="meeting-icon"
+              [class.blue]="meeting.accent === 'blue'"
+              [class.rose]="meeting.accent === 'rose'"
+            >
+              <mat-icon aria-hidden="true">groups</mat-icon>
+            </span>
+
+            <span
+              class="status-pill"
+              [class.review]="meeting.status === 'In review'"
+              [class.approved]="meeting.status === 'Approved'"
+            >
+              {{ meeting.status }}
+            </span>
+          </div>
+
+          <p class="committee">{{ meeting.committee }}</p>
+
+          <h2 [id]="'meeting-' + meeting.id">
+            {{ meeting.title }}
+          </h2>
+
+          <dl class="meeting-details">
+            <div>
+              <dt>Agenda items</dt>
+              <dd>{{ meeting.agendaItems }}</dd>
+            </div>
+
+            <div>
+              <dt>Actions done</dt>
+              <dd>{{ meeting.completedActions }}/{{ meeting.totalActions }}</dd>
+            </div>
+
+            <div>
+              <dt>Meeting date</dt>
+              <dd>{{ meeting.date | date: 'dd MMM' }}</dd>
+            </div>
+          </dl>
+
+          <div class="card-footer">
+            <div class="avatars" aria-hidden="true">
+              @for (member of meeting.members; track $index) {
+                <span class="avatar">{{ member }}</span>
+              }
+            </div>
+
+            <span class="member-count"> {{ meeting.members.length }} members </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @empty {
+      <div class="empty-state">
+        <mat-icon aria-hidden="true">search_off</mat-icon>
+        <h2>No matching meetings</h2>
+        <p>Try another search or choose a different status.</p>
+      </div>
+    }
+  </div>
+</section>

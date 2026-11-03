@@ -1,0 +1,47 @@
+<div class="sidebar-content">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">B</span>
+
+    <div>
+      <strong>BoardFlow</strong>
+      <span>Committee workspace</span>
+    </div>
+  </div>
+
+  @if (isMobile()) {
+    <button mat-button class="close-menu" (click)="closeRequested.emit()">
+      <mat-icon aria-hidden="true">close</mat-icon>
+      Close navigation
+    </button>
+  }
+
+  <p class="section-label">WORKSPACE</p>
+
+  <nav class="navigation" aria-label="Main navigation">
+    @for (item of navigation; track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="navigationSelected.emit()"
+      >
+        <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="sidebar-note">
+    <mat-icon aria-hidden="true">groups</mat-icon>
+
+    <p>
+      Plan meetings.<br />
+      Track decisions.
+    </p>
+  </div>
+
+  <div class="sidebar-footer">
+    <span class="demo-dot" aria-hidden="true"></span>
+    Portfolio demo
+  </div>
+</div>

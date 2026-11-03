@@ -1,0 +1,30 @@
+<mat-sidenav-container class="app-container">
+  <mat-sidenav
+    #drawer
+    id="main-navigation"
+    class="sidebar"
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()"
+    [autoFocus]="isMobile()"
+  >
+    <app-sidebar
+      [isMobile]="isMobile()"
+      (closeRequested)="drawer.close()"
+      (navigationSelected)="isMobile() && drawer.close()"
+    />
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <a class="skip-link" href="#main-content"> Skip to content </a>
+
+    <app-header
+      [isMobile]="isMobile()"
+      [navigationOpen]="drawer.opened"
+      (menuToggle)="drawer.toggle()"
+    />
+
+    <main id="main-content" class="page-content" tabindex="-1">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

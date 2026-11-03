@@ -1,1 +1,186 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$violet-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+/* Shared design values and default light theme */
+:root {
+  color-scheme: light;
+
+  --font-family: Roboto, Arial, sans-serif;
+  --radius-shell: 26px;
+  --radius-card: 22px;
+  --radius-control: 14px;
+  --glass-blur: 24px;
+
+  --page-bg: #e2effb;
+  --glow-blue: rgba(112, 189, 255, 0.65);
+  --glow-purple: rgba(134, 119, 240, 0.55);
+  --glow-rose: rgba(255, 188, 173, 0.55);
+
+  --shell-bg: rgba(245, 248, 255, 0.48);
+  --shell-solid: #eaf0fa;
+  --sidebar-bg: rgba(247, 251, 255, 0.54);
+  --sidebar-mobile-bg: #edf1fb;
+  --header-bg: rgba(246, 249, 255, 0.94);
+  --card-bg: rgba(255, 255, 255, 0.64);
+  --surface-solid: #ffffff;
+  --surface-hover: rgba(255, 255, 255, 0.48);
+  --surface-active: rgba(255, 255, 255, 0.8);
+
+  --text-primary: #24283f;
+  --text-secondary: #535b73;
+  --text-muted: #5b6278;
+
+  --accent: #7133bb;
+  --accent-soft: #f2eafa;
+  --accent-border: #e2d4f4;
+  --focus-ring: #7133bb;
+
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --divider: rgba(95, 103, 132, 0.19);
+  --input-border: #9299b2;
+
+  --shadow-shell: 0 24px 70px rgba(66, 76, 133, 0.14);
+  --shadow-card: 0 8px 24px rgba(73, 76, 119, 0.06);
+  --inner-highlight: rgba(255, 255, 255, 0.8);
+
+  --brand-start: #a665ee;
+  --brand-end: #7035ca;
+  --brand-text: #ffffff;
+  --brand-shadow: 0 6px 16px rgba(116, 55, 194, 0.2);
+
+  --purple-bg: #f0e5fc;
+  --purple-text: #7135a4;
+  --blue-bg: #e3edff;
+  --blue-text: #3262ae;
+  --rose-bg: #fbe5ef;
+  --rose-text: #ad3765;
+
+  --status-neutral-bg: #f5f6fa;
+  --status-neutral-text: #525b70;
+  --status-neutral-border: #dce0e9;
+
+  --status-success-bg: #e9f6ee;
+  --status-success-text: #256a47;
+  --status-success-border: #c8e5d7;
+}
+
+/* Dark theme overrides */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --page-bg: #101421;
+  --glow-blue: rgba(47, 98, 161, 0.3);
+  --glow-purple: rgba(105, 64, 173, 0.32);
+  --glow-rose: rgba(143, 60, 100, 0.2);
+
+  --shell-bg: rgba(22, 27, 45, 0.76);
+  --shell-solid: #1a2033;
+  --sidebar-bg: rgba(20, 25, 42, 0.7);
+  --sidebar-mobile-bg: #191f33;
+  --header-bg: rgba(25, 30, 49, 0.96);
+  --card-bg: rgba(37, 43, 65, 0.82);
+  --surface-solid: #252c43;
+  --surface-hover: rgba(167, 139, 230, 0.1);
+  --surface-active: rgba(167, 139, 230, 0.17);
+
+  --text-primary: #f0f1fa;
+  --text-secondary: #c4c8dc;
+  --text-muted: #b2bad0;
+
+  --accent: #cfafff;
+  --accent-soft: #36294b;
+  --accent-border: #665080;
+  --focus-ring: #d3b8ff;
+
+  --glass-border: rgba(205, 214, 255, 0.17);
+  --divider: rgba(205, 214, 255, 0.17);
+  --input-border: #8993ae;
+
+  --shadow-shell: 0 24px 70px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.16);
+  --inner-highlight: rgba(255, 255, 255, 0.07);
+
+  --brand-start: #a665ee;
+  --brand-end: #7035ca;
+  --brand-text: #ffffff;
+  --brand-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+
+  --purple-bg: #3d2d56;
+  --purple-text: #dabaff;
+  --blue-bg: #253d5d;
+  --blue-text: #b0d0ff;
+  --rose-bg: #502e43;
+  --rose-text: #ffc0db;
+
+  --status-neutral-bg: #30384e;
+  --status-neutral-text: #d2d9ed;
+  --status-neutral-border: #606b85;
+
+  --status-success-bg: #203f34;
+  --status-success-text: #a5e7be;
+  --status-success-border: #4f8066;
+}
+
+/* Global base styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background: var(--page-bg);
+  color: var(--text-primary);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Public Angular Material customization API */
+html {
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: var(--radius-control),
+      outlined-outline-color: var(--input-border),
+      outlined-hover-outline-color: var(--text-secondary),
+      outlined-focus-outline-color: var(--accent),
+      outlined-input-text-color: var(--text-primary),
+      outlined-label-text-color: var(--text-secondary),
+      outlined-focus-label-text-color: var(--accent),
+      outlined-input-text-placeholder-color: var(--text-muted),
+    )
+  );
+}
