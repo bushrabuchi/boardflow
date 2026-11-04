@@ -17,6 +17,30 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard').then((component) => component.Dashboard),
       },
+      {
+        path: 'meetings',
+        title: 'Meetings | BoardFlow',
+        loadComponent: () =>
+          import('./features/meetings/meeting-list/meeting-list').then(
+            (component) => component.MeetingList,
+          ),
+      },
+      {
+        path: 'meetings/new',
+        title: 'Create meeting | BoardFlow',
+        loadComponent: () =>
+          import('./features/meetings/meeting-form/meeting-form').then(
+            (component) => component.MeetingForm,
+          ),
+      },
+      {
+        path: 'meetings/:id',
+        title: 'Meeting details | BoardFlow',
+        loadComponent: () =>
+          import('./features/meetings/meeting-details/meeting-details').then(
+            (component) => component.MeetingDetails,
+          ),
+      },
     ],
   },
   {

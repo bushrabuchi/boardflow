@@ -11,4 +11,15 @@ export interface Meeting {
   readonly totalActions: number;
   readonly members: readonly string[];
   readonly accent: 'purple' | 'blue' | 'rose';
+  readonly agenda?: readonly string[];
+  readonly createdById?: string;
+  readonly assigneeId?: string;
+}
+export interface CreateMeetingInput {
+  readonly title: string;
+  readonly committee: string;
+  readonly date: string;
+  readonly agenda: readonly string[];
+  readonly members: readonly string[];
+  readonly assigneeId: string;
 }

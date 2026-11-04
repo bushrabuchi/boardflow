@@ -1,1 +1,78 @@
-<p>meeting-list works!</p>
+<section aria-labelledby="meetings-title">
+  <div class="page-heading">
+    <p class="eyebrow">COMMITTEE WORKSPACE</p>
+    <h1 id="meetings-title">Meetings</h1>
+    <p>Browse agendas, review progress and open meeting details.</p>
+    <span class="demo-label">Sample data</span>
+    <a mat-flat-button routerLink="/meetings/new">
+      <mat-icon aria-hidden="true">add</mat-icon>
+      Create meeting
+    </a>
+  </div>
+
+  <div class="filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Search title or committee</mat-label>
+      <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+      <input matInput type="search" [formControl]="searchControl" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [formControl]="statusControl">
+        <mat-option value="All">All statuses</mat-option>
+        <mat-option value="Draft">Draft</mat-option>
+        <mat-option value="In review">In review</mat-option>
+        <mat-option value="Approved">Approved</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-button type="button" (click)="clearFilters()">Clear filters</button>
+  </div>
+
+  <p class="results-count" role="status">{{ filteredMeetings().length }} meetings found</p>
+
+  <div class="meeting-list">
+    @for (meeting of filteredMeetings(); track meeting.id) {
+      <article class="meeting-row">
+        <div class="meeting-summary">
+          <span class="meeting-icon" aria-hidden="true">
+            <mat-icon>event_note</mat-icon>
+          </span>
+
+          <div>
+            <p class="committee">{{ meeting.committee }}</p>
+
+            <h2>
+              <a [routerLink]="['/meetings', meeting.id]">
+                {{ meeting.title }}
+              </a>
+            </h2>
+          </div>
+        </div>
+
+        <div class="meeting-meta">
+          <time [attr.datetime]="meeting.date">
+            {{ meeting.date | date: 'dd MMM yyyy' }}
+          </time>
+
+          <span
+            class="status"
+            [class.review]="meeting.status === 'In review'"
+            [class.approved]="meeting.status === 'Approved'"
+          >
+            {{ meeting.status }}
+          </span>
+        </div>
+      </article>
+    } @empty {
+      <div class="empty-state">
+        <mat-icon aria-hidden="true">search_off</mat-icon>
+        <h2>No meetings found</h2>
+        <p>Change your search or clear the filters.</p>
+
+        <button mat-button (click)="clearFilters()">Clear filters</button>
+      </div>
+    }
+  </div>
+</section>

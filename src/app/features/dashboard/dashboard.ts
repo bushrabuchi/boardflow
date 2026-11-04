@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -8,8 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-
-type MeetingStatus = 'Draft' | 'In review' | 'Approved';
+import { MeetingStore } from '../meetings/data-access/meeting-store';
+import { MeetingStatus } from '../meetings/models/meeting.model';
+import { MOCK_MEMBERS } from '../meetings/data-access/member.mock';
+// type MeetingStatus = 'Draft' | 'In review' | 'Approved';
 
 interface MeetingCard {
   id: number;
@@ -40,6 +42,8 @@ interface MeetingCard {
   styleUrl: './dashboard.scss',
 })
 export class Dashboard {
+  private readonly meetingStore = inject(MeetingStore);
+  readonly meetings = this.meetingStore.meetings;
   readonly searchControl = new FormControl('', {
     nonNullable: true,
   });
@@ -53,81 +57,6 @@ export class Dashboard {
   private readonly status = toSignal(this.statusControl.valueChanges, {
     initialValue: this.statusControl.value,
   });
-
-  readonly meetings = signal<MeetingCard[]>([
-    {
-      id: 1,
-      title: 'Quarterly board review',
-      committee: 'Executive Board',
-      status: 'In review',
-      date: '2026-11-12',
-      agendaItems: 8,
-      completedActions: 4,
-      totalActions: 6,
-      members: ['SA', 'NM', 'AK'],
-      accent: 'purple',
-    },
-    {
-      id: 2,
-      title: 'Annual budget planning',
-      committee: 'Finance Committee',
-      status: 'Draft',
-      date: '2026-11-15',
-      agendaItems: 6,
-      completedActions: 2,
-      totalActions: 5,
-      members: ['FA', 'RH', 'MS'],
-      accent: 'blue',
-    },
-    {
-      id: 3,
-      title: 'Risk and compliance',
-      committee: 'Audit Committee',
-      status: 'Approved',
-      date: '2026-11-18',
-      agendaItems: 5,
-      completedActions: 7,
-      totalActions: 7,
-      members: ['LA', 'SA', 'HK'],
-      accent: 'rose',
-    },
-    {
-      id: 4,
-      title: 'Digital transformation',
-      committee: 'Technology Committee',
-      status: 'In review',
-      date: '2026-11-20',
-      agendaItems: 7,
-      completedActions: 3,
-      totalActions: 8,
-      members: ['OM', 'NA', 'FA'],
-      accent: 'blue',
-    },
-    {
-      id: 5,
-      title: 'Policy review workshop',
-      committee: 'Governance Committee',
-      status: 'Draft',
-      date: '2026-11-23',
-      agendaItems: 4,
-      completedActions: 1,
-      totalActions: 4,
-      members: ['NM', 'AK'],
-      accent: 'purple',
-    },
-    {
-      id: 6,
-      title: 'Strategic priorities',
-      committee: 'Executive Board',
-      status: 'Approved',
-      date: '2026-11-26',
-      agendaItems: 9,
-      completedActions: 5,
-      totalActions: 6,
-      members: ['SA', 'RH', 'LA'],
-      accent: 'rose',
-    },
-  ]);
 
   readonly filteredMeetings = computed(() => {
     const query = this.search().trim().toLowerCase();

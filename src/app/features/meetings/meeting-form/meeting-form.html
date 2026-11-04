@@ -1,0 +1,132 @@
+<a mat-button routerLink="/meetings">
+  <mat-icon aria-hidden="true">arrow_back</mat-icon>
+  Back to meetings
+</a>
+
+<section class="form-panel" aria-labelledby="form-title">
+  <header class="form-heading">
+    <p class="eyebrow">MEETING PREPARATION</p>
+    <h1 id="form-title">
+      {{ editId() !== null ? 'Edit draft meeting' : 'Create meeting' }}
+    </h1>
+    <p>Prepare the meeting information and its agenda.</p>
+  </header>
+
+  <p class="demo-notice">
+    Demo mode: saved meetings remain available until this page is refreshed.
+  </p>
+  @if (loadError()) {
+    <p role="alert">{{ loadError() }}</p>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="save()">
+      @if (submitted() && form.invalid) {
+        <p class="validation-summary" role="alert">
+          Please correct the highlighted fields before saving.
+        </p>
+      }
+
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Meeting title</mat-label>
+          <input matInput formControlName="title" maxlength="120" required />
+          <mat-hint>Use a clear title, up to 120 characters.</mat-hint>
+          <mat-error> Enter a title containing text, up to 120 characters. </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Committee</mat-label>
+          <mat-select formControlName="committee" required>
+            @for (committee of committees; track committee) {
+              <mat-option [value]="committee">
+                {{ committee }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-error>Select a committee.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Meeting date</mat-label>
+          <input
+            matInput
+            formControlName="date"
+            [matDatepicker]="picker"
+            [min]="minimumDate"
+            required
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="picker" />
+          <mat-datepicker #picker />
+          <mat-hint>Select today or a future date.</mat-hint>
+          <mat-error>Choose a valid date today or later.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Meeting owner / Assignee</mat-label>
+
+          <mat-select formControlName="assigneeId" required>
+            @for (member of availableMembers; track member.id) {
+              <mat-option [value]="member.id"> {{ member.name }} — {{ member.role }} </mat-option>
+            }
+          </mat-select>
+
+          <mat-hint> Responsible for coordinating the meeting. </mat-hint>
+
+          <mat-error>Select a meeting owner.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <section class="agenda-section" aria-labelledby="agenda-title">
+        <div class="agenda-heading">
+          <div>
+            <h2 id="agenda-title">Agenda</h2>
+            <p>Add between 1 and 20 discussion items.</p>
+          </div>
+
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="agenda.length >= 20"
+            (click)="addAgendaItem()"
+          >
+            <mat-icon aria-hidden="true">add</mat-icon>
+            Add item
+          </button>
+        </div>
+
+        <div formArrayName="agenda">
+          @for (control of agenda.controls; track control; let i = $index) {
+            <div class="agenda-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Agenda item {{ i + 1 }}</mat-label>
+                <input matInput [formControlName]="i" maxlength="200" required />
+                <mat-error> Enter agenda text, up to 200 characters. </mat-error>
+              </mat-form-field>
+
+              <button
+                mat-icon-button
+                type="button"
+                [disabled]="agenda.length === 1"
+                [attr.aria-label]="'Remove agenda item ' + (i + 1)"
+                (click)="removeAgendaItem(i)"
+              >
+                <mat-icon aria-hidden="true">delete_outline</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+      @if (saveError()) {
+        <p class="validation-summary" role="alert">
+          {{ saveError() }}
+        </p>
+      }
+      <div class="form-actions">
+        <a mat-button routerLink="/meetings">Cancel</a>
+
+        <button mat-flat-button type="submit" [disabled]="saved()">
+          <mat-icon aria-hidden="true">save</mat-icon>
+          {{ editId() !== null ? 'Save changes' : 'Save draft' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

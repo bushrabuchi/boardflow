@@ -1,1 +1,94 @@
-<p>meeting-details works!</p>
+<a mat-button routerLink="/meetings">
+  <mat-icon aria-hidden="true">arrow_back</mat-icon>
+  Back to meetings
+</a>
+
+@if (meeting(); as item) {
+  <article class="details-panel" aria-labelledby="meeting-title">
+    <p class="eyebrow">{{ item.committee }}</p>
+    <h1 id="meeting-title">{{ item.title }}</h1>
+    <p class="demo-note">Sample meeting information</p>
+    <div class="details-actions">
+      @if (item.status === 'Draft') {
+        <a mat-stroked-button [routerLink]="['/meetings', item.id, 'edit']">
+          <mat-icon aria-hidden="true">edit</mat-icon>
+          Edit draft
+        </a>
+      }
+    </div>
+    <dl class="details-grid">
+      <div>
+        <dt>Status</dt>
+        <dd>{{ item.status }}</dd>
+      </div>
+
+      <div>
+        <dt>Meeting date</dt>
+        <dd>
+          <time [attr.datetime]="item.date">
+            {{ item.date | date: 'dd MMM yyyy' }}
+          </time>
+        </dd>
+      </div>
+
+      <div>
+        <dt>Agenda items</dt>
+        <dd>{{ item.agendaItems }}</dd>
+      </div>
+
+      <div>
+        <dt>Completed actions</dt>
+        <dd>{{ item.completedActions }} of {{ item.totalActions }}</dd>
+      </div>
+
+      <div>
+        <dt>Members</dt>
+        <dd>{{ item.members.length }}</dd>
+      </div>
+    </dl>
+
+    <section aria-labelledby="agenda-title">
+      <h2 id="agenda-title">Agenda</h2>
+
+      @if (item.agenda?.length) {
+        <ol class="agenda-list">
+          @for (entry of item.agenda; track $index) {
+            <li>{{ entry }}</li>
+          }
+        </ol>
+      } @else {
+        <p>Agenda descriptions are not included in this sample meeting.</p>
+      }
+    </section>
+    <section class="members-section" aria-labelledby="members-title">
+      <h2 id="members-title">Meeting members</h2>
+
+      @if (meetingMembers().length) {
+        <ul class="member-list">
+          @for (member of meetingMembers(); track member.id) {
+            <li class="member-card">
+              <span class="member-avatar" aria-hidden="true">
+                {{ member.id }}
+              </span>
+
+              <div>
+                <strong>{{ member.name }}</strong>
+                <span class="member-role">{{ member.role }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p>No members assigned.</p>
+      }
+    </section>
+    <section aria-labelledby="actions-title">
+      <h2 id="actions-title">Actions</h2>
+    </section>
+  </article>
+} @else {
+  <section class="details-panel" aria-labelledby="not-found-title">
+    <h1 id="not-found-title">Meeting not found</h1>
+    <p>This meeting ID is invalid or is not available in the demo data.</p>
+  </section>
+}

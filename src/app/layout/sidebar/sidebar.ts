@@ -24,5 +24,10 @@ export class Sidebar {
       icon: 'dashboard',
       path: '/dashboard',
     },
+    {
+      label: 'Meetings',
+      icon: 'event_note',
+      path: '/meetings',
+    },
   ];
 }

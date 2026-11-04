@@ -1,0 +1,135 @@
+:host {
+  display: block;
+  color: var(--text-primary);
+}
+
+.form-panel {
+  max-width: 900px;
+  margin: 20px auto 0;
+  padding: 32px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-card);
+}
+
+.form-heading {
+  h1 {
+    margin: 8px 0;
+    font-size: clamp(26px, 3vw, 34px);
+    letter-spacing: -0.8px;
+  }
+
+  > p:not(.eyebrow) {
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.demo-notice {
+  margin: 24px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-control);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.validation-summary {
+  color: var(--mat-sys-error);
+  line-height: 1.6;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.agenda-section {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid var(--divider);
+}
+
+.agenda-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+}
+
+.agenda-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 0;
+  }
+
+  > button {
+    flex-shrink: 0;
+    margin-top: 4px;
+    color: var(--text-secondary);
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--divider);
+}
+
+@media (max-width: 599px) {
+  .form-panel {
+    padding: 20px 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .form-actions {
+    flex-wrap: wrap;
+
+    > * {
+      flex: 1;
+    }
+  }
+}

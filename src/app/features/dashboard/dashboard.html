@@ -80,12 +80,19 @@
 
           <div class="card-footer">
             <div class="avatars" aria-hidden="true">
-              @for (member of meeting.members; track $index) {
-                <span class="avatar">{{ member }}</span>
+              @for (memberId of meeting.members.slice(0, 3); track memberId) {
+                <span class="avatar">{{ memberId }}</span>
+              }
+
+              @if (meeting.members.length > 3) {
+                <span class="avatar"> +{{ meeting.members.length - 3 }} </span>
               }
             </div>
 
-            <span class="member-count"> {{ meeting.members.length }} members </span>
+            <span class="member-count">
+              {{ meeting.members.length }}
+              {{ meeting.members.length === 1 ? 'member' : 'members' }}
+            </span>
           </div>
         </mat-card-content>
       </mat-card>

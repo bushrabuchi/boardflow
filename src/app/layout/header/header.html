@@ -55,10 +55,10 @@
     >
       <span class="profile-content">
         <span class="avatar" aria-hidden="true">
-          {{ user.initials }}
+          {{ user().initials }}
         </span>
 
-        <span class="profile-name">{{ user.name }}</span>
+        <span class="profile-name">{{ user().name }}</span>
 
         <mat-icon aria-hidden="true">expand_more</mat-icon>
       </span>
@@ -91,11 +91,11 @@
 
 <mat-menu #profileMenu="matMenu" xPosition="before">
   <button mat-menu-item disabled>
-    {{ user.name }}
+    {{ user().name }}
   </button>
 
   <button mat-menu-item disabled>
-    {{ user.role }}
+    {{ user().role }}
   </button>
 
   <button mat-menu-item (click)="themeService.toggle()">

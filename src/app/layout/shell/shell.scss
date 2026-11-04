@@ -1,25 +1,15 @@
-:host {
-  display: block;
-  min-height: 100dvh;
-  padding: 28px;
-  color: var(--text-primary);
-
-  background:
-    radial-gradient(ellipse at 12% 18%, var(--glow-blue), transparent 42%),
-    radial-gradient(ellipse at 55% 5%, var(--glow-purple), transparent 48%),
-    radial-gradient(ellipse at 82% 78%, var(--glow-rose), transparent 45%), var(--page-bg);
-}
-
 .app-container {
-  max-width: 1600px;
-  height: calc(100dvh - 56px);
   margin-inline: auto;
   overflow: hidden;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-shell);
-  background: var(--shell-bg);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-shell);
+
+  background:
+    radial-gradient(ellipse at 8% 0%, var(--glow-blue) 0%, transparent 38%),
+    radial-gradient(ellipse at 100% 8%, var(--glow-purple) 0%, transparent 42%),
+    radial-gradient(ellipse at 88% 100%, var(--glow-rose) 0%, transparent 40%), var(--page-bg);
+  // background: var(--shell-bg);
+  // color: var(--text-primary);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
 }

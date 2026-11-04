@@ -13,7 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
-
+import { CurrentUserService } from '../../core/current-user.service';
 import { ThemeService } from '../../core/theme.service';
 
 interface AppNotification {
@@ -38,11 +38,7 @@ export class Header {
   readonly menuToggle = output<void>();
 
   // Temporary demo identity until authentication is connected.
-  readonly user = {
-    name: 'Demo Secretary',
-    initials: 'DS',
-    role: 'Committee Secretary',
-  };
+  readonly user = inject(CurrentUserService).user;
 
   readonly notifications = signal<AppNotification[]>([
     {
