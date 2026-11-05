@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Shell } from './layout/shell/shell';
-
+import { unsavedChangesGuard } from '././core/unsaved-changes.guard';
 export const routes: Routes = [
   {
     path: '',
@@ -28,6 +28,7 @@ export const routes: Routes = [
       {
         path: 'meetings/new',
         title: 'Create meeting | BoardFlow',
+        canDeactivate: [unsavedChangesGuard],
         loadComponent: () =>
           import('./features/meetings/meeting-form/meeting-form').then(
             (component) => component.MeetingForm,
@@ -36,9 +37,19 @@ export const routes: Routes = [
       {
         path: 'meetings/:id',
         title: 'Meeting details | BoardFlow',
+        canDeactivate: [unsavedChangesGuard],
         loadComponent: () =>
           import('./features/meetings/meeting-details/meeting-details').then(
             (component) => component.MeetingDetails,
+          ),
+      },
+      {
+        path: 'meetings/:id/edit',
+        title: 'Edit meeting | BoardFlow',
+        canDeactivate: [unsavedChangesGuard],
+        loadComponent: () =>
+          import('./features/meetings/meeting-form/meeting-form').then(
+            (component) => component.MeetingForm,
           ),
       },
     ],

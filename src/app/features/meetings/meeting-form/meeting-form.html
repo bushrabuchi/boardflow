@@ -6,18 +6,21 @@
 <section class="form-panel" aria-labelledby="form-title">
   <header class="form-heading">
     <p class="eyebrow">MEETING PREPARATION</p>
+
     <h1 id="form-title">
       {{ editId() !== null ? 'Edit draft meeting' : 'Create meeting' }}
     </h1>
-    <p>Prepare the meeting information and its agenda.</p>
+
+    <p>Set the schedule, choose participants and prepare the agenda.</p>
   </header>
 
-  <p class="demo-notice">
-    Demo mode: saved meetings remain available until this page is refreshed.
-  </p>
   @if (loadError()) {
-    <p role="alert">{{ loadError() }}</p>
+    <p class="validation-summary" role="alert">
+      {{ loadError() }}
+    </p>
   } @else {
+    <p class="demo-notice">Demo mode: meetings are stored temporarily and reset on refresh.</p>
+
     <form [formGroup]="form" (ngSubmit)="save()">
       @if (submitted() && form.invalid) {
         <p class="validation-summary" role="alert">
@@ -25,11 +28,12 @@
         </p>
       }
 
+      <h2 class="section-title">Meeting information</h2>
+
       <div class="form-grid">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Meeting title</mat-label>
           <input matInput formControlName="title" maxlength="120" required />
-          <mat-hint>Use a clear title, up to 120 characters.</mat-hint>
           <mat-error> Enter a title containing text, up to 120 characters. </mat-error>
         </mat-form-field>
 
@@ -46,6 +50,35 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
+          <mat-label>Created by</mat-label>
+
+          <input matInput [value]="creatorName()" readonly />
+
+          <mat-hint> Automatically recorded when the meeting is created. </mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Meeting owner</mat-label>
+
+          <mat-select formControlName="assigneeId" required>
+            @for (member of availableMembers; track member.id) {
+              <mat-option [value]="member.id"> {{ member.name }} — {{ member.role }} </mat-option>
+            }
+          </mat-select>
+
+          <mat-hint> Person responsible for coordinating this meeting. </mat-hint>
+
+          <mat-error>Select a meeting owner.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <h2 class="section-title">Schedule</h2>
+      <p class="section-description">
+        All times are Riyadh time (UTC+03:00). Start and end are on the same day.
+      </p>
+
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Meeting date</mat-label>
           <input
             matInput
@@ -56,23 +89,68 @@
           />
           <mat-datepicker-toggle matIconSuffix [for]="picker" />
           <mat-datepicker #picker />
-          <mat-hint>Select today or a future date.</mat-hint>
           <mat-error>Choose a valid date today or later.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Meeting owner / Assignee</mat-label>
 
-          <mat-select formControlName="assigneeId" required>
-            @for (member of availableMembers; track member.id) {
-              <mat-option [value]="member.id"> {{ member.name }} — {{ member.role }} </mat-option>
-            }
-          </mat-select>
+        <mat-form-field appearance="outline">
+          <mat-label>Start time</mat-label>
+          <input
+            matInput
+            type="time"
+            step="60"
+            formControlName="startTime"
+            aria-describedby="time-range-help"
+            required
+          />
+          <mat-error>Enter a valid start time.</mat-error>
+        </mat-form-field>
 
-          <mat-hint> Responsible for coordinating the meeting. </mat-hint>
-
-          <mat-error>Select a meeting owner.</mat-error>
+        <mat-form-field appearance="outline">
+          <mat-label>End time</mat-label>
+          <input
+            matInput
+            type="time"
+            step="60"
+            formControlName="endTime"
+            aria-describedby="time-range-help"
+            required
+          />
+          <mat-error>Enter a valid end time.</mat-error>
         </mat-form-field>
       </div>
+
+      <p
+        id="time-range-help"
+        class="section-description"
+        [class.validation-summary]="
+          form.hasError('invalidTimeRange') && (form.controls.endTime.touched || submitted())
+        "
+        aria-live="polite"
+      >
+        @if (form.hasError('invalidTimeRange') && (form.controls.endTime.touched || submitted())) {
+          End time must be later than start time.
+        } @else {
+          Choose an end time after the start time.
+        }
+      </p>
+
+      <h2 class="section-title">Members</h2>
+
+      <mat-form-field appearance="outline" class="members-field">
+        <mat-label>Meeting participants</mat-label>
+
+        <mat-select formControlName="members" multiple required>
+          @for (member of availableMembers; track member.id) {
+            <mat-option [value]="member.id"> {{ member.name }} — {{ member.role }} </mat-option>
+          }
+        </mat-select>
+
+        <mat-hint>
+          {{ form.controls.members.value.length }} selected. Select at least one participant.
+        </mat-hint>
+
+        <mat-error>Select at least one meeting member.</mat-error>
+      </mat-form-field>
 
       <section class="agenda-section" aria-labelledby="agenda-title">
         <div class="agenda-heading">
@@ -114,11 +192,13 @@
           }
         </div>
       </section>
+
       @if (saveError()) {
         <p class="validation-summary" role="alert">
           {{ saveError() }}
         </p>
       }
+
       <div class="form-actions">
         <a mat-button routerLink="/meetings">Cancel</a>
 

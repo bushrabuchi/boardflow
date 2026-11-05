@@ -110,7 +110,27 @@
   padding-top: 24px;
   border-top: 1px solid var(--divider);
 }
+.section-title {
+  margin: 28px 0 16px;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+}
 
+.section-description {
+  margin: 0 0 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.members-field {
+  width: 100%;
+}
+
+.section-description.validation-summary {
+  color: var(--mat-sys-error);
+}
 @media (max-width: 599px) {
   .form-panel {
     padding: 20px 16px;

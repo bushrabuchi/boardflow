@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 
 import {
   FormArray,
@@ -8,7 +8,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-
+import { TIME_PATTERN, validMeetingTimeRange } from '../validators/meeting-time.validator';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -64,7 +64,7 @@ const todayOrLater: ValidatorFn = (control) => {
   styleUrl: './meeting-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MeetingForm {
+export class MeetingForm implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly currentUser = inject(CurrentUserService);
 
@@ -76,7 +76,8 @@ export class MeetingForm {
   readonly availableMembers = MOCK_MEMBERS;
   readonly submitted = signal(false);
   readonly saved = signal(false);
-
+  readonly creatorName = signal(this.currentUser.user().name);
+  private readonly memberNames = new Map(MOCK_MEMBERS.map((member) => [member.id, member.name]));
   readonly minimumDate = new Date(
     new Date().getFullYear(),
     new Date().getMonth(),
@@ -91,34 +92,105 @@ export class MeetingForm {
     'Governance Committee',
   ];
 
-  readonly form = new FormGroup({
-    title: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, nonBlank, Validators.maxLength(120)],
-    }),
+  readonly form = new FormGroup(
+    {
+      title: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, nonBlank, Validators.maxLength(120)],
+      }),
 
-    committee: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    members: new FormControl<string[]>([], {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    date: new FormControl<Date | null>(null, {
-      validators: [Validators.required, todayOrLater],
-    }),
+      committee: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      members: new FormControl<string[]>([], {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
 
-    agenda: new FormArray<FormControl<string>>(
-      [this.createAgendaControl()],
-      [Validators.required, Validators.maxLength(20)],
-    ),
-    assigneeId: new FormControl(this.currentUser.user().id, {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-  });
+      assigneeId: new FormControl(this.currentUser.user().id, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
 
+      startTime: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.pattern(TIME_PATTERN)],
+      }),
+
+      endTime: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.pattern(TIME_PATTERN)],
+      }),
+      date: new FormControl<Date | null>(null, {
+        validators: [Validators.required, todayOrLater],
+      }),
+
+      agenda: new FormArray<FormControl<string>>(
+        [this.createAgendaControl()],
+        [Validators.required, Validators.maxLength(20)],
+      ),
+    },
+    {
+      validators: [validMeetingTimeRange],
+    },
+  );
+  ngOnInit(): void {
+    this.loadMeetingForEditing();
+  }
+
+  private loadMeetingForEditing(): void {
+    const rawId = this.route.snapshot.paramMap.get('id');
+
+    if (rawId === null) {
+      return;
+    }
+
+    const id = Number(rawId);
+
+    if (!/^[1-9]\d*$/.test(rawId) || !Number.isSafeInteger(id)) {
+      this.loadError.set('The meeting ID is invalid.');
+      return;
+    }
+
+    const meeting = this.store.meetings().find((item) => item.id === id);
+
+    if (!meeting) {
+      this.loadError.set('This meeting could not be found.');
+      return;
+    }
+
+    if (meeting.status !== 'Draft') {
+      this.loadError.set('Only Draft meetings can be edited.');
+      return;
+    }
+
+    this.editId.set(meeting.id);
+
+    const [year, month, day] = meeting.date.split('-').map(Number);
+    this.creatorName.set(this.memberNames.get(meeting.createdById ?? '') ?? 'Not recorded');
+    this.form.patchValue({
+      title: meeting.title,
+      committee: meeting.committee,
+      date: new Date(year, month - 1, day),
+      startTime: meeting.startTime ?? '',
+      endTime: meeting.endTime ?? '',
+      members: [...meeting.members],
+      assigneeId: meeting.assigneeId ?? this.currentUser.user().id,
+    });
+
+    this.agenda.clear();
+
+    const agendaItems = meeting.agenda?.length ? meeting.agenda : [''];
+
+    for (const title of agendaItems) {
+      const control = this.createAgendaControl();
+      control.setValue(title);
+      this.agenda.push(control);
+    }
+
+    this.form.markAsPristine();
+  }
   get agenda(): FormArray<FormControl<string>> {
     return this.form.controls.agenda;
   }
@@ -142,13 +214,13 @@ export class MeetingForm {
   }
 
   save(): void {
-    if (this.saved()) {
+    if (this.saved() || this.loadError()) {
       return;
     }
 
     this.submitted.set(true);
+    this.saveError.set('');
 
-    // Recheck the date if the form has remained open overnight.
     this.form.controls.date.updateValueAndValidity();
     this.form.markAllAsTouched();
 
@@ -162,19 +234,35 @@ export class MeetingForm {
       return;
     }
 
-    const meeting = this.store.create({
+    const input: CreateMeetingInput = {
       title: value.title,
       committee: value.committee,
       date: this.toDateOnly(value.date),
+      startTime: value.startTime,
+      endTime: value.endTime,
+      timeZone: 'Asia/Riyadh',
       agenda: value.agenda,
       members: value.members,
       assigneeId: value.assigneeId,
-    });
+    };
+
+    const id = this.editId();
+
+    const meeting = id === null ? this.store.create(input) : this.store.updateDraft(id, input);
+
+    if (!meeting) {
+      this.saveError.set('This meeting is no longer editable. Your changes have not been saved.');
+      return;
+    }
 
     this.saved.set(true);
     this.form.markAsPristine();
 
     void this.router.navigate(['/meetings', meeting.id]);
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.form.dirty && !this.saved() && !this.loadError();
   }
 
   private createAgendaControl(): FormControl<string> {

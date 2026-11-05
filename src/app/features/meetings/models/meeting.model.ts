@@ -14,6 +14,9 @@ export interface Meeting {
   readonly agenda?: readonly string[];
   readonly createdById?: string;
   readonly assigneeId?: string;
+  readonly startTime?: string;
+  readonly endTime?: string;
+  readonly timeZone?: 'Asia/Riyadh';
 }
 export interface CreateMeetingInput {
   readonly title: string;
@@ -22,4 +25,7 @@ export interface CreateMeetingInput {
   readonly agenda: readonly string[];
   readonly members: readonly string[];
   readonly assigneeId: string;
+  readonly startTime: string;
+  readonly endTime: string;
+  readonly timeZone: 'Asia/Riyadh';
 }

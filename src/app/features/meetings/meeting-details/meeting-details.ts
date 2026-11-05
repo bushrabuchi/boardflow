@@ -21,7 +21,7 @@ import { MeetingStore } from '../data-access/meeting-store';
 export class MeetingDetails {
   private readonly route = inject(ActivatedRoute);
   private readonly store = inject(MeetingStore);
-
+  readonly memberNames = new Map(MOCK_MEMBERS.map((member) => [member.id, member.name]));
   private readonly routeId = toSignal(this.route.paramMap.pipe(map((params) => params.get('id'))), {
     initialValue: this.route.snapshot.paramMap.get('id'),
   });

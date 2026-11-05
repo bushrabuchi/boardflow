@@ -30,7 +30,23 @@
           </time>
         </dd>
       </div>
+      <div>
+        <dt>Time</dt>
+        <dd>
+          @if (item.startTime && item.endTime) {
+            {{ item.startTime }}–{{ item.endTime }}
+          } @else {
+            Not recorded
+          }
+        </dd>
+      </div>
 
+      <div>
+        <dt>Time zone</dt>
+        <dd>
+          {{ item.timeZone === 'Asia/Riyadh' ? 'Riyadh (UTC+03:00)' : 'Not recorded' }}
+        </dd>
+      </div>
       <div>
         <dt>Agenda items</dt>
         <dd>{{ item.agendaItems }}</dd>
@@ -44,6 +60,19 @@
       <div>
         <dt>Members</dt>
         <dd>{{ item.members.length }}</dd>
+      </div>
+      <div>
+        <dt>Created by</dt>
+        <dd>
+          {{ memberNames.get(item.createdById ?? '') ?? 'Not recorded' }}
+        </dd>
+      </div>
+
+      <div>
+        <dt>Meeting owner</dt>
+        <dd>
+          {{ memberNames.get(item.assigneeId ?? '') ?? 'Unassigned' }}
+        </dd>
       </div>
     </dl>
 

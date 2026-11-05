@@ -25,7 +25,12 @@ export class MeetingStore {
       status: 'Draft',
       completedActions: 0,
       totalActions: 0,
+      createdById: this.currentUser.user().id,
+      assigneeId: input.assigneeId,
       members: [...new Set(input.members)],
+      startTime: input.startTime,
+      endTime: input.endTime,
+      timeZone: input.timeZone,
       accent: 'purple',
     };
 
@@ -52,6 +57,9 @@ export class MeetingStore {
       agendaItems: agenda.length,
       members: [...new Set(input.members)],
       assigneeId: input.assigneeId,
+      startTime: input.startTime,
+      endTime: input.endTime,
+      timeZone: input.timeZone,
     };
 
     this.meetingState.update((items) => items.map((item) => (item.id === id ? updated : item)));
