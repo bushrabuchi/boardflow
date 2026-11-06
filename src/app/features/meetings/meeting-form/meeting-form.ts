@@ -21,7 +21,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MOCK_MEMBERS } from '../data-access/member.mock';
 import { MeetingStore } from '../data-access/meeting-store';
 import { CurrentUserService } from '../../../core/current-user.service';
-import { CreateMeetingInput } from '../models/meeting.model';
+import { CreateMeetingInput, MeetingStatus, MEETING_STATUSES } from '../models/meeting.model';
 const nonBlank: ValidatorFn = (control) =>
   typeof control.value === 'string' && control.value.trim().length > 0 ? null : { blank: true };
 
@@ -67,7 +67,7 @@ const todayOrLater: ValidatorFn = (control) => {
 export class MeetingForm implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly currentUser = inject(CurrentUserService);
-
+  readonly statusOptions = MEETING_STATUSES;
   readonly editId = signal<number | null>(null);
   readonly loadError = signal('');
   readonly saveError = signal('');
@@ -112,7 +112,10 @@ export class MeetingForm implements OnInit {
         nonNullable: true,
         validators: [Validators.required],
       }),
-
+      status: new FormControl<MeetingStatus>('Draft', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
       startTime: new FormControl('', {
         nonNullable: true,
         validators: [Validators.required, Validators.pattern(TIME_PATTERN)],
@@ -160,8 +163,10 @@ export class MeetingForm implements OnInit {
       return;
     }
 
-    if (meeting.status !== 'Draft') {
-      this.loadError.set('Only Draft meetings can be edited.');
+    if (!this.store.canEdit(meeting)) {
+      this.loadError.set(
+        'You cannot edit this meeting with your current permissions or lifecycle.',
+      );
       return;
     }
 
@@ -176,6 +181,7 @@ export class MeetingForm implements OnInit {
       startTime: meeting.startTime ?? '',
       endTime: meeting.endTime ?? '',
       members: [...meeting.members],
+      status: meeting.status,
       assigneeId: meeting.assigneeId ?? this.currentUser.user().id,
     });
 
@@ -243,12 +249,13 @@ export class MeetingForm implements OnInit {
       timeZone: 'Asia/Riyadh',
       agenda: value.agenda,
       members: value.members,
+      status: value.status,
       assigneeId: value.assigneeId,
     };
 
     const id = this.editId();
 
-    const meeting = id === null ? this.store.create(input) : this.store.updateDraft(id, input);
+    const meeting = id === null ? this.store.create(input) : this.store.update(id, input);
 
     if (!meeting) {
       this.saveError.set('This meeting is no longer editable. Your changes have not been saved.');

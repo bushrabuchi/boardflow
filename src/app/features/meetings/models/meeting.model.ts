@@ -1,5 +1,14 @@
-export type MeetingStatus = 'Draft' | 'In review' | 'Approved';
+export type MeetingStatus =
+  'Draft' | 'Scheduled' | 'In progress' | 'In review' | 'Completed' | 'Cancelled';
 
+export const MEETING_STATUSES: readonly MeetingStatus[] = [
+  'Draft',
+  'Scheduled',
+  'In progress',
+  'In review',
+  'Completed',
+  'Cancelled',
+];
 export interface Meeting {
   readonly id: number;
   readonly title: string;
@@ -24,6 +33,7 @@ export interface CreateMeetingInput {
   readonly date: string;
   readonly agenda: readonly string[];
   readonly members: readonly string[];
+  readonly status: MeetingStatus;
   readonly assigneeId: string;
   readonly startTime: string;
   readonly endTime: string;

@@ -58,8 +58,12 @@
 
           <span
             class="status"
+            [class.draft]="meeting.status === 'Draft'"
+            [class.scheduled]="meeting.status === 'Scheduled'"
+            [class.in-progress]="meeting.status === 'In progress'"
             [class.review]="meeting.status === 'In review'"
-            [class.approved]="meeting.status === 'Approved'"
+            [class.completed]="meeting.status === 'Completed'"
+            [class.cancelled]="meeting.status === 'Cancelled'"
           >
             {{ meeting.status }}
           </span>

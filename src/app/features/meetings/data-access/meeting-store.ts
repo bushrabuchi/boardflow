@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { CreateMeetingInput, Meeting } from '../models/meeting.model';
 import { CurrentUserService } from '../../../core/current-user.service';
 import { MOCK_MEETINGS } from './meeting.mock';
+import { canEditMeeting } from './meeting-policy';
 @Injectable({
   providedIn: 'root',
 })
@@ -9,7 +10,9 @@ export class MeetingStore {
   private readonly meetingState = signal<readonly Meeting[]>(MOCK_MEETINGS);
   private readonly currentUser = inject(CurrentUserService);
   readonly meetings = this.meetingState.asReadonly();
-
+  canEdit(meeting: Meeting): boolean {
+    return canEditMeeting(meeting, this.currentUser.user());
+  }
   create(input: CreateMeetingInput): Meeting {
     // Suitable for this local demo. The backend will assign IDs later.
     const id = Math.max(0, ...this.meetingState().map((meeting) => meeting.id)) + 1;
@@ -22,7 +25,7 @@ export class MeetingStore {
       date: input.date,
       agenda,
       agendaItems: agenda.length,
-      status: 'Draft',
+      status: input.status,
       completedActions: 0,
       totalActions: 0,
       createdById: this.currentUser.user().id,
@@ -38,11 +41,11 @@ export class MeetingStore {
 
     return meeting;
   }
-  updateDraft(id: number, input: CreateMeetingInput): Meeting | undefined {
+  update(id: number, input: CreateMeetingInput): Meeting | undefined {
     const existing = this.meetingState().find((item) => item.id === id);
 
     // Check the business rule in the store as well as in the UI.
-    if (!existing || existing.status !== 'Draft') {
+    if (!existing || !this.canEdit(existing)) {
       return undefined;
     }
 
@@ -54,6 +57,7 @@ export class MeetingStore {
       committee: input.committee,
       date: input.date,
       agenda,
+      status: input.status,
       agendaItems: agenda.length,
       members: [...new Set(input.members)],
       assigneeId: input.assigneeId,

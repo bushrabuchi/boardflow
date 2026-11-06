@@ -1,19 +1,32 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MOCK_MEMBERS } from '../data-access/member.mock';
 import { MeetingStore } from '../data-access/meeting-store';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
 
+import { Meeting } from '../models/meeting.model';
 @Component({
   selector: 'app-meeting-details',
   standalone: true,
-  imports: [DatePipe, RouterLink, MatButtonModule, MatIconModule],
+  imports: [
+    DatePipe,
+    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+  ],
   templateUrl: './meeting-details.html',
   styleUrl: './meeting-details.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,7 +38,9 @@ export class MeetingDetails {
   private readonly routeId = toSignal(this.route.paramMap.pipe(map((params) => params.get('id'))), {
     initialValue: this.route.snapshot.paramMap.get('id'),
   });
-
+  canEdit(meeting: Meeting): boolean {
+    return this.store.canEdit(meeting);
+  }
   readonly meeting = computed(() => {
     const rawId = this.routeId();
 

@@ -37,7 +37,6 @@ export const routes: Routes = [
       {
         path: 'meetings/:id',
         title: 'Meeting details | BoardFlow',
-        canDeactivate: [unsavedChangesGuard],
         loadComponent: () =>
           import('./features/meetings/meeting-details/meeting-details').then(
             (component) => component.MeetingDetails,

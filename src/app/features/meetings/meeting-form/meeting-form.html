@@ -8,7 +8,7 @@
     <p class="eyebrow">MEETING PREPARATION</p>
 
     <h1 id="form-title">
-      {{ editId() !== null ? 'Edit draft meeting' : 'Create meeting' }}
+      {{ editId() !== null ? 'Edit meeting' : 'Create meeting' }}
     </h1>
 
     <p>Set the schedule, choose participants and prepare the agenda.</p>
@@ -116,6 +116,19 @@
             required
           />
           <mat-error>Enter a valid end time.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Meeting status</mat-label>
+
+          <mat-select formControlName="status" required>
+            @for (status of statusOptions; track status) {
+              <mat-option [value]="status">
+                {{ status }}
+              </mat-option>
+            }
+          </mat-select>
+
+          <mat-error>Select a meeting status.</mat-error>
         </mat-form-field>
       </div>
 

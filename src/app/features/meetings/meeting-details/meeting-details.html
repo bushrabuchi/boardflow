@@ -9,19 +9,16 @@
     <h1 id="meeting-title">{{ item.title }}</h1>
     <p class="demo-note">Sample meeting information</p>
     <div class="details-actions">
-      @if (item.status === 'Draft') {
-        <a mat-stroked-button [routerLink]="['/meetings', item.id, 'edit']">
-          <mat-icon aria-hidden="true">edit</mat-icon>
-          Edit draft
-        </a>
-      }
+      <a mat-stroked-button [routerLink]="['/meetings', item.id, 'edit']">
+        <mat-icon aria-hidden="true">edit</mat-icon>
+        Edit draft
+      </a>
     </div>
     <dl class="details-grid">
       <div>
         <dt>Status</dt>
         <dd>{{ item.status }}</dd>
       </div>
-
       <div>
         <dt>Meeting date</dt>
         <dd>
@@ -75,7 +72,6 @@
         </dd>
       </div>
     </dl>
-
     <section aria-labelledby="agenda-title">
       <h2 id="agenda-title">Agenda</h2>
 
