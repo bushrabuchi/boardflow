@@ -8,25 +8,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MOCK_MEMBERS } from '../data-access/member.mock';
 import { MeetingStore } from '../data-access/meeting-store';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-
+import { MeetingActions } from '../meeting-actions/meeting-actions';
 import { Meeting } from '../models/meeting.model';
 @Component({
   selector: 'app-meeting-details',
   standalone: true,
-  imports: [
-    DatePipe,
-    RouterLink,
-    MatButtonModule,
-    MatIconModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-  ],
+  imports: [DatePipe, RouterLink, MatButtonModule, MatIconModule, MeetingActions],
   templateUrl: './meeting-details.html',
   styleUrl: './meeting-details.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -22,6 +22,7 @@ import { MOCK_MEMBERS } from '../data-access/member.mock';
 import { MeetingStore } from '../data-access/meeting-store';
 import { CurrentUserService } from '../../../core/current-user.service';
 import { CreateMeetingInput, MeetingStatus, MEETING_STATUSES } from '../models/meeting.model';
+import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 const nonBlank: ValidatorFn = (control) =>
   typeof control.value === 'string' && control.value.trim().length > 0 ? null : { blank: true };
 
@@ -58,6 +59,8 @@ const todayOrLater: ValidatorFn = (control) => {
     MatDatepickerModule,
     MatButtonModule,
     MatIconModule,
+    CdkDropList,
+    CdkDrag,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './meeting-form.html',
@@ -76,6 +79,8 @@ export class MeetingForm implements OnInit {
   readonly availableMembers = MOCK_MEMBERS;
   readonly submitted = signal(false);
   readonly saved = signal(false);
+  readonly maxAgendaItems = 20;
+  readonly maxAgendaLength = 200;
   readonly creatorName = signal(this.currentUser.user().name);
   private readonly memberNames = new Map(MOCK_MEMBERS.map((member) => [member.id, member.name]));
   readonly minimumDate = new Date(
@@ -200,25 +205,59 @@ export class MeetingForm implements OnInit {
   get agenda(): FormArray<FormControl<string>> {
     return this.form.controls.agenda;
   }
-
   addAgendaItem(): void {
-    if (this.agenda.length >= 20) {
+    if (this.agenda.length >= this.maxAgendaItems) {
       return;
     }
 
-    this.agenda.push(this.createAgendaControl());
-    this.form.markAsDirty();
+    const control = new FormControl('', {
+      nonNullable: true,
+      validators: [
+        Validators.required,
+        Validators.pattern(/\S/),
+        Validators.maxLength(this.maxAgendaLength),
+      ],
+    });
+
+    this.agenda.push(control);
+    this.agenda.markAsDirty();
   }
 
   removeAgendaItem(index: number): void {
-    if (this.agenda.length <= 1) {
+    if (this.agenda.length <= 1 || index < 0 || index >= this.agenda.length) {
       return;
     }
 
     this.agenda.removeAt(index);
-    this.form.markAsDirty();
+    this.agenda.markAsDirty();
   }
 
+  moveAgendaItem(fromIndex: number, toIndex: number): void {
+    if (
+      fromIndex === toIndex ||
+      fromIndex < 0 ||
+      toIndex < 0 ||
+      fromIndex >= this.agenda.length ||
+      toIndex >= this.agenda.length
+    ) {
+      return;
+    }
+
+    const control = this.agenda.at(fromIndex);
+
+    // Move the existing control, preserving its value and validation.
+    this.agenda.removeAt(fromIndex, { emitEvent: false });
+    this.agenda.insert(toIndex, control, { emitEvent: false });
+
+    this.agenda.markAsDirty();
+
+    // Notify subscribers after the complete move.
+    this.agenda.updateValueAndValidity();
+  }
+
+  dropAgendaItem(event: CdkDragDrop<FormControl<string>[]>): void {
+    this.moveAgendaItem(event.previousIndex, event.currentIndex);
+  }
   save(): void {
     if (this.saved() || this.loadError()) {
       return;
@@ -247,7 +286,7 @@ export class MeetingForm implements OnInit {
       startTime: value.startTime,
       endTime: value.endTime,
       timeZone: 'Asia/Riyadh',
-      agenda: value.agenda,
+      agenda: value.agenda.map((topic) => topic.trim()),
       members: value.members,
       status: value.status,
       assigneeId: value.assigneeId,

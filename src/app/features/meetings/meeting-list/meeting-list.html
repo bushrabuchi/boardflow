@@ -1,23 +1,28 @@
 <section aria-labelledby="meetings-title">
   <div class="page-heading">
-    <p class="eyebrow">COMMITTEE WORKSPACE</p>
-    <h1 id="meetings-title">Meetings</h1>
-    <p>Browse agendas, review progress and open meeting details.</p>
-    <span class="demo-label">Sample data</span>
-    <a mat-flat-button routerLink="/meetings/new">
-      <mat-icon aria-hidden="true">add</mat-icon>
-      Create meeting
-    </a>
+    <div>
+      <p class="eyebrow">COMMITTEE WORKSPACE</p>
+      <h1 id="meetings-title">Meetings</h1>
+      <p class="page-description">Browse agendas, track progress and open meeting details.</p>
+    </div>
+
+    <div class="heading-actions">
+      <span class="demo-label">Sample data</span>
+      <a mat-flat-button routerLink="/meetings/new">
+        <mat-icon aria-hidden="true">add</mat-icon>
+        Create meeting
+      </a>
+    </div>
   </div>
 
-  <div class="filters">
-    <mat-form-field appearance="outline">
+  <div class="filter-panel">
+    <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search title or committee</mat-label>
       <mat-icon matPrefix aria-hidden="true">search</mat-icon>
       <input matInput type="search" [formControl]="searchControl" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" class="status-field">
       <mat-label>Status</mat-label>
       <mat-select [formControl]="statusControl">
         <mat-option value="All">All statuses</mat-option>
@@ -27,10 +32,16 @@
       </mat-select>
     </mat-form-field>
 
-    <button mat-button type="button" (click)="clearFilters()">Clear filters</button>
+    <button mat-button type="button" (click)="clearFilters()">
+      <mat-icon aria-hidden="true">filter_alt_off</mat-icon>
+      Clear filters
+    </button>
   </div>
 
-  <p class="results-count" role="status">{{ filteredMeetings().length }} meetings found</p>
+  <p class="results-count" role="status">
+    <strong>{{ filteredMeetings().length }}</strong>
+    {{ filteredMeetings().length === 1 ? 'meeting' : 'meetings' }} found
+  </p>
 
   <div class="meeting-list">
     @for (meeting of filteredMeetings(); track meeting.id) {
@@ -53,6 +64,7 @@
 
         <div class="meeting-meta">
           <time [attr.datetime]="meeting.date">
+            <mat-icon aria-hidden="true">event</mat-icon>
             {{ meeting.date | date: 'dd MMM yyyy' }}
           </time>
 

@@ -1,32 +1,80 @@
-<a mat-button routerLink="/meetings">
+<a class="back-link" mat-button routerLink="/meetings">
   <mat-icon aria-hidden="true">arrow_back</mat-icon>
   Back to meetings
 </a>
 
 @if (meeting(); as item) {
-  <article class="details-panel" aria-labelledby="meeting-title">
-    <p class="eyebrow">{{ item.committee }}</p>
-    <h1 id="meeting-title">{{ item.title }}</h1>
-    <p class="demo-note">Sample meeting information</p>
-    <div class="details-actions">
-      <a mat-stroked-button [routerLink]="['/meetings', item.id, 'edit']">
-        <mat-icon aria-hidden="true">edit</mat-icon>
-        Edit draft
-      </a>
-    </div>
+  <article class="details-page" aria-labelledby="meeting-title">
+    <header class="details-header">
+      <div class="details-heading">
+        <p class="eyebrow">{{ item.committee }}</p>
+        <h1 id="meeting-title">{{ item.title }}</h1>
+
+        <div class="meeting-badges">
+          <span
+            class="status-pill"
+            [class.draft]="item.status === 'Draft'"
+            [class.scheduled]="item.status === 'Scheduled'"
+            [class.in-progress]="item.status === 'In progress'"
+            [class.review]="item.status === 'In review'"
+            [class.completed]="item.status === 'Completed'"
+            [class.cancelled]="item.status === 'Cancelled'"
+          >
+            {{ item.status }}
+          </span>
+
+          <span class="date-line">
+            <mat-icon aria-hidden="true">event</mat-icon>
+            <time [attr.datetime]="item.date">
+              {{ item.date | date: 'dd MMM yyyy' }}
+            </time>
+          </span>
+        </div>
+      </div>
+
+      @if (canEdit(item)) {
+        <a mat-stroked-button [routerLink]="['/meetings', item.id, 'edit']">
+          <mat-icon aria-hidden="true">edit</mat-icon>
+          Edit meeting
+        </a>
+      }
+    </header>
+
+    <section class="summary-grid" aria-label="Meeting summary">
+      <div class="summary-card">
+        <span class="summary-icon agenda-icon">
+          <mat-icon aria-hidden="true">format_list_bulleted</mat-icon>
+        </span>
+        <div>
+          <strong>{{ item.agendaItems }}</strong>
+          <span>{{ item.agendaItems === 1 ? 'Agenda item' : 'Agenda items' }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-icon action-icon">
+          <mat-icon aria-hidden="true">task_alt</mat-icon>
+        </span>
+        <div>
+          <strong
+            >{{ item.completedActions }} <small>of {{ item.totalActions }}</small></strong
+          >
+          <span>Actions completed</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-icon member-icon">
+          <mat-icon aria-hidden="true">groups</mat-icon>
+        </span>
+        <div>
+          <strong>{{ item.members.length }}</strong>
+          <span>{{ item.members.length === 1 ? 'Participant' : 'Participants' }}</span>
+        </div>
+      </div>
+    </section>
+
     <dl class="details-grid">
-      <div>
-        <dt>Status</dt>
-        <dd>{{ item.status }}</dd>
-      </div>
-      <div>
-        <dt>Meeting date</dt>
-        <dd>
-          <time [attr.datetime]="item.date">
-            {{ item.date | date: 'dd MMM yyyy' }}
-          </time>
-        </dd>
-      </div>
       <div>
         <dt>Time</dt>
         <dd>
@@ -37,7 +85,6 @@
           }
         </dd>
       </div>
-
       <div>
         <dt>Time zone</dt>
         <dd>
@@ -45,35 +92,23 @@
         </dd>
       </div>
       <div>
-        <dt>Agenda items</dt>
-        <dd>{{ item.agendaItems }}</dd>
-      </div>
-
-      <div>
-        <dt>Completed actions</dt>
-        <dd>{{ item.completedActions }} of {{ item.totalActions }}</dd>
-      </div>
-
-      <div>
-        <dt>Members</dt>
-        <dd>{{ item.members.length }}</dd>
-      </div>
-      <div>
         <dt>Created by</dt>
-        <dd>
-          {{ memberNames.get(item.createdById ?? '') ?? 'Not recorded' }}
-        </dd>
+        <dd>{{ memberNames.get(item.createdById ?? '') ?? 'Not recorded' }}</dd>
       </div>
-
       <div>
         <dt>Meeting owner</dt>
-        <dd>
-          {{ memberNames.get(item.assigneeId ?? '') ?? 'Unassigned' }}
-        </dd>
+        <dd>{{ memberNames.get(item.assigneeId ?? '') ?? 'Unassigned' }}</dd>
       </div>
     </dl>
-    <section aria-labelledby="agenda-title">
-      <h2 id="agenda-title">Agenda</h2>
+
+    <section class="content-section" aria-labelledby="agenda-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="agenda-title">Agenda</h2>
+          <p>Topics planned for this meeting</p>
+        </div>
+        <span class="section-count">{{ item.agenda?.length ?? 0 }}</span>
+      </div>
 
       @if (item.agenda?.length) {
         <ol class="agenda-list">
@@ -82,18 +117,25 @@
           }
         </ol>
       } @else {
-        <p>Agenda descriptions are not included in this sample meeting.</p>
+        <p class="empty-note">Agenda descriptions are not available in this sample meeting.</p>
       }
     </section>
-    <section class="members-section" aria-labelledby="members-title">
-      <h2 id="members-title">Meeting members</h2>
+
+    <section class="content-section members-section" aria-labelledby="members-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="members-title">Participants</h2>
+          <p>People invited to this meeting</p>
+        </div>
+        <span class="section-count">{{ meetingMembers().length }}</span>
+      </div>
 
       @if (meetingMembers().length) {
         <ul class="member-list">
           @for (member of meetingMembers(); track member.id) {
             <li class="member-card">
               <span class="member-avatar" aria-hidden="true">
-                {{ member.id }}
+                {{ member.name.charAt(0) }}
               </span>
 
               <div>
@@ -104,16 +146,15 @@
           }
         </ul>
       } @else {
-        <p>No members assigned.</p>
+        <p class="empty-note">No participants assigned.</p>
       }
     </section>
-    <section aria-labelledby="actions-title">
-      <h2 id="actions-title">Actions</h2>
-    </section>
+    <app-meeting-actions [meeting]="item" />
   </article>
 } @else {
-  <section class="details-panel" aria-labelledby="not-found-title">
+  <section class="details-page not-found" aria-labelledby="not-found-title">
     <h1 id="not-found-title">Meeting not found</h1>
     <p>This meeting ID is invalid or is not available in the demo data.</p>
+    <a mat-stroked-button routerLink="/meetings">Return to meetings</a>
   </section>
 }
