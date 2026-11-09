@@ -8,12 +8,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MOCK_MEMBERS } from '../data-access/member.mock';
 import { MeetingStore } from '../data-access/meeting-store';
-import { MeetingActions } from '../meeting-actions/meeting-actions';
 import { Meeting } from '../models/meeting.model';
+import { MeetingActionStore } from '../data-access/meeting-action-store';
 @Component({
   selector: 'app-meeting-details',
   standalone: true,
-  imports: [DatePipe, RouterLink, MatButtonModule, MatIconModule, MeetingActions],
+  imports: [DatePipe, RouterLink, MatButtonModule, MatIconModule],
   templateUrl: './meeting-details.html',
   styleUrl: './meeting-details.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,5 +61,18 @@ export class MeetingDetails {
         }
       );
     });
+  });
+  private readonly actionStore = inject(MeetingActionStore);
+
+  readonly actionStorageError = this.actionStore.storageError;
+
+  readonly meetingActions = computed(() => {
+    const meeting = this.meeting();
+
+    if (!meeting) {
+      return [];
+    }
+
+    return this.actionStore.actions().filter((action) => action.meetingId === meeting.id);
   });
 }

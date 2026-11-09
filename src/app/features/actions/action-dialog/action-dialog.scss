@@ -1,0 +1,191 @@
+:host {
+  display: block;
+  color: var(--text-primary);
+}
+
+.dialog-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin: 0;
+  padding: 1.5rem 1.5rem 1.1rem;
+  border-bottom: 1px solid var(--divider);
+  background:
+    radial-gradient(ellipse at 10% 0, var(--accent-soft), transparent 55%), var(--surface-solid);
+}
+
+.dialog-title-icon {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--accent-border);
+  border-radius: 0.9rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+
+  mat-icon {
+    width: 1.4rem;
+    height: 1.4rem;
+    font-size: 1.4rem;
+  }
+}
+
+.dialog-title-copy {
+  min-width: 0;
+  flex: 1;
+
+  .eyebrow {
+    margin: 0 0 0.3rem;
+    color: var(--accent);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.25;
+  }
+
+  > p:last-child {
+    margin: 0.35rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+}
+
+.dialog-content {
+  max-height: min(65vh, 34rem);
+  padding: 1.25rem 1.5rem 1rem;
+}
+
+.fields {
+  display: grid;
+  gap: 0.65rem;
+
+  mat-form-field {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.meeting-context {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--accent-border);
+  border-radius: 0.8rem;
+  background: var(--accent-soft);
+
+  > mat-icon {
+    flex: 0 0 auto;
+    color: var(--accent);
+  }
+
+  div {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  span {
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  strong {
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.assignment-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.notice {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--status-neutral-border);
+  border-radius: 0.7rem;
+  background: var(--status-neutral-bg);
+  color: var(--status-neutral-text);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.35rem 0 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--mat-sys-error, #b3261e);
+  border-radius: 0.7rem;
+  background: var(--mat-sys-error-container, #fce3e0);
+  color: var(--mat-sys-on-error-container, #7f1d1d);
+  font-size: 0.78rem;
+  line-height: 1.5;
+
+  mat-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: 0 0 auto;
+    font-size: 1.1rem;
+  }
+}
+
+.dialog-actions {
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem 1.15rem;
+  border-top: 1px solid var(--divider);
+  background: var(--surface-hover);
+
+  button[mat-flat-button] mat-icon {
+    margin-inline-end: 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog-title {
+    gap: 0.7rem;
+    padding: 1.1rem 1rem 0.9rem;
+  }
+
+  .dialog-title-icon {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  .dialog-content {
+    padding: 1rem 1rem 0.75rem;
+  }
+
+  .assignment-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .dialog-actions {
+    padding: 0.75rem 1rem 1rem;
+  }
+}

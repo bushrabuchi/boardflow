@@ -51,6 +51,14 @@ export const routes: Routes = [
             (component) => component.MeetingForm,
           ),
       },
+      {
+        path: 'actions',
+        title: 'Actions | BoardFlow',
+        loadComponent: () =>
+          import('./features/actions/actions-board/actions-board').then(
+            (component) => component.ActionsBoard,
+          ),
+      },
     ],
   },
   {

@@ -1,0 +1,116 @@
+<div mat-dialog-title class="dialog-title">
+  <span class="dialog-title-icon" aria-hidden="true">
+    <mat-icon>add_task</mat-icon>
+  </span>
+  <div class="dialog-title-copy">
+    <p class="eyebrow">Meeting follow-up</p>
+    <h2>Create an action</h2>
+    <p>Give a meeting decision an owner and a deadline.</p>
+  </div>
+  <button mat-icon-button type="button" mat-dialog-close aria-label="Close dialog">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content class="dialog-content">
+    <div class="fields">
+      @if (meetingLocked) {
+        <div class="meeting-context">
+          <mat-icon aria-hidden="true">event_note</mat-icon>
+          <div>
+            <span>Meeting</span>
+            <strong>{{ lockedMeetingTitle() }}</strong>
+          </div>
+        </div>
+      } @else {
+        <mat-form-field appearance="outline" class="meeting-field">
+          <mat-label>Meeting</mat-label>
+          <mat-icon matPrefix aria-hidden="true">event_note</mat-icon>
+          <mat-select formControlName="meetingId">
+            @for (meeting of availableMeetings(); track meeting.id) {
+              <mat-option [value]="meeting.id">
+                {{ meeting.title }}
+              </mat-option>
+            }
+          </mat-select>
+
+          <mat-error>Choose a meeting.</mat-error>
+        </mat-form-field>
+      }
+
+      <mat-form-field appearance="outline" class="title-field">
+        <mat-label>What needs to be done?</mat-label>
+
+        <input
+          matInput
+          formControlName="title"
+          maxlength="200"
+          placeholder="For example, prepare the revised budget"
+        />
+        <mat-icon matPrefix aria-hidden="true">edit_note</mat-icon>
+
+        <mat-hint>Be specific so the owner knows what to do.</mat-hint>
+        <mat-hint align="end">{{ form.controls.title.value.length }} / 200</mat-hint>
+
+        @if (form.controls.title.hasError('required')) {
+          <mat-error>Enter an action title.</mat-error>
+        } @else if (form.controls.title.hasError('pattern')) {
+          <mat-error>The title cannot contain only spaces.</mat-error>
+        } @else if (form.controls.title.hasError('maxlength')) {
+          <mat-error>Use 200 characters or fewer.</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="assignment-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Assigned to</mat-label>
+          <mat-icon matPrefix aria-hidden="true">person_outline</mat-icon>
+          <mat-select formControlName="assigneeId">
+            @for (member of participants(); track member.id) {
+              <mat-option [value]="member.id">
+                {{ member.name }}
+              </mat-option>
+            }
+          </mat-select>
+
+          <mat-hint>Meeting participant</mat-hint>
+          <mat-error>Choose a participant.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Due date</mat-label>
+          <mat-icon matPrefix aria-hidden="true">calendar_today</mat-icon>
+          <input matInput type="date" formControlName="dueDate" />
+          <mat-error>Choose a due date.</mat-error>
+        </mat-form-field>
+      </div>
+
+      @if (selectedMeetingId() !== null && participants().length === 0) {
+        <p class="notice">
+          This meeting has no available participants. Edit the meeting to add participants first.
+        </p>
+      }
+    </div>
+
+    @if (error()) {
+      <p class="error" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        {{ error() }}
+      </p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions" align="end">
+    <button mat-button type="button" mat-dialog-close>Cancel</button>
+
+    <button
+      mat-flat-button
+      type="submit"
+      [disabled]="availableMeetings().length === 0 || participants().length === 0"
+    >
+      <mat-icon aria-hidden="true">add_task</mat-icon>
+      Save action
+    </button>
+  </mat-dialog-actions>
+</form>

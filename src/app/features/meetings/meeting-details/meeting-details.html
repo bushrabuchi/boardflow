@@ -149,7 +149,70 @@
         <p class="empty-note">No participants assigned.</p>
       }
     </section>
-    <app-meeting-actions [meeting]="item" />
+    <section class="meeting-action-summary" aria-labelledby="actions-title">
+      <header class="action-summary-heading">
+        <div>
+          <p class="eyebrow">Follow-through</p>
+          <h2 id="actions-title">Action items</h2>
+          <p>Owners and deadlines for this meeting</p>
+        </div>
+        <span class="section-count" [attr.aria-label]="meetingActions().length + ' action items'">
+          {{ meetingActions().length }}
+        </span>
+      </header>
+
+      @if (actionStorageError()) {
+        <p class="action-error" role="alert">{{ actionStorageError() }}</p>
+      }
+
+      <div class="action-summary-list">
+        @for (action of meetingActions(); track action.id) {
+          <article class="action-summary-row">
+            <span class="action-summary-icon" aria-hidden="true">
+              <mat-icon>task_alt</mat-icon>
+            </span>
+            <div class="action-summary-copy">
+              <h3>{{ action.title }}</h3>
+              <p>
+                <mat-icon aria-hidden="true">event</mat-icon>
+                Due
+                <time [attr.datetime]="action.dueDate">
+                  {{ action.dueDate | date: 'mediumDate' }}
+                </time>
+              </p>
+            </div>
+            <span
+              class="action-status"
+              [class.in-progress]="action.status === 'In progress'"
+              [class.completed]="action.status === 'Completed'"
+            >
+              {{ action.status }}
+            </span>
+          </article>
+        } @empty {
+          <div class="action-empty">
+            <span class="action-summary-icon" aria-hidden="true">
+              <mat-icon>checklist</mat-icon>
+            </span>
+            <div>
+              <strong>No action items yet</strong>
+              <p>Add follow-ups here to keep owners and deadlines clear.</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <a
+        class="manage-actions"
+        mat-flat-button
+        routerLink="/actions"
+        [queryParams]="{ meetingId: item.id }"
+      >
+        <mat-icon aria-hidden="true">add_task</mat-icon>
+        Manage meeting actions
+        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+      </a>
+    </section>
   </article>
 } @else {
   <section class="details-page not-found" aria-labelledby="not-found-title">

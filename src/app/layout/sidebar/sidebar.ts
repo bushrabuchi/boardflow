@@ -29,5 +29,10 @@ export class Sidebar {
       icon: 'event_note',
       path: '/meetings',
     },
+    {
+      label: 'Actions',
+      icon: 'check_circle',
+      path: '/actions',
+    },
   ];
 }

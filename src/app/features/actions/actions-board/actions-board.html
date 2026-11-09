@@ -1,0 +1,258 @@
+<section class="actions-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Meeting follow-up</p>
+      <h1 #boardHeading tabindex="-1">Actions</h1>
+      <p class="page-description">
+        Turn meeting decisions into clear ownership and on-time follow-through.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a mat-stroked-button routerLink="/meetings">
+        <mat-icon>event</mat-icon>
+        View meetings
+      </a>
+
+      <button
+        mat-flat-button
+        type="button"
+        [disabled]="!canCreateAction()"
+        (click)="openNewAction()"
+      >
+        <mat-icon>add</mat-icon>
+        New action
+      </button>
+    </div>
+    @if (!canCreateAction()) {
+      <p class="create-note">You need a meeting you can manage before creating an action.</p>
+    }
+  </header>
+  @if (isMeetingScoped()) {
+    <div class="meeting-context">
+      <mat-icon aria-hidden="true">event_note</mat-icon>
+      <div>
+        <strong>{{ scopedMeeting() ? 'Actions for this meeting' : 'Meeting unavailable' }}</strong>
+        <p>{{ scopedMeeting()?.title || scopeError() }}</p>
+      </div>
+    </div>
+  } @else {
+    <div class="filters" role="group" aria-label="Filter actions">
+      <mat-form-field appearance="outline">
+        <mat-label>Search actions</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+
+        <input
+          #searchInput
+          matInput
+          [value]="search()"
+          (input)="search.set(searchInput.value)"
+          placeholder="Task, meeting, or owner"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Meeting</mat-label>
+
+        <mat-select [value]="meetingFilter()" (selectionChange)="meetingFilter.set($event.value)">
+          <mat-option [value]="null">All meetings</mat-option>
+
+          @for (meeting of meetings(); track meeting.id) {
+            <mat-option [value]="meeting.id">
+              {{ meeting.title }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Assigned to</mat-label>
+
+        <mat-select [value]="assigneeFilter()" (selectionChange)="assigneeFilter.set($event.value)">
+          <mat-option value="">All owners</mat-option>
+
+          @for (owner of owners(); track owner.id) {
+            <mat-option [value]="owner.id">
+              {{ owner.name }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="filter-buttons">
+        <button
+          mat-stroked-button
+          type="button"
+          [attr.aria-pressed]="overdueOnly()"
+          [class.selected]="overdueOnly()"
+          (click)="overdueOnly.set(!overdueOnly())"
+        >
+          Overdue only
+        </button>
+
+        <button mat-button type="button" [disabled]="!hasFilters()" (click)="clearFilters()">
+          Clear filters
+        </button>
+      </div>
+    </div>
+  }
+  <section class="summary-grid" aria-label="Action status summary">
+    @for (stat of summaryStats(); track stat.label) {
+      <article class="summary-card" [class.overdue-stat]="stat.label === 'Overdue'">
+        <span>{{ stat.value }}</span>
+        <p>{{ stat.label }}</p>
+      </article>
+    }
+  </section>
+  <div class="board-description">
+    <p>
+      Showing <strong>{{ filteredCards().length }}</strong>
+      {{ filteredCards().length === 1 ? 'action' : 'actions' }}.
+      @if (hasFilters()) {
+        Results reflect your filters.
+      }
+    </p>
+
+    <p>Move an action with its handle or status menu. Changes save automatically.</p>
+  </div>
+
+  @if (actionStore.storageError() || error()) {
+    <p class="feedback error" role="alert">
+      {{ error() || actionStore.storageError() }}
+    </p>
+  }
+
+  <p class="feedback" role="status" aria-live="polite">
+    {{ message() }}
+  </p>
+
+  @if (cards().length === 0) {
+    <div class="empty-state">
+      <h2>No action items yet</h2>
+      <p>Create a task, assign a participant, and set a deadline.</p>
+
+      @if (canCreateAction()) {
+        <button mat-flat-button type="button" (click)="openNewAction()">Create first action</button>
+      } @else {
+        <a mat-stroked-button routerLink="/meetings"> View meetings </a>
+      }
+    </div>
+  } @else {
+    @if (filteredCards().length === 0) {
+      <div class="empty-state filtered-empty" role="status">
+        <mat-icon aria-hidden="true">filter_alt_off</mat-icon>
+        <h2>No actions match these filters</h2>
+        <p>Try changing your search or filters to see more action items.</p>
+        <button mat-button type="button" [disabled]="!hasFilters()" (click)="clearFilters()">
+          Clear filters
+        </button>
+      </div>
+    } @else {
+      <div class="kanban-board" cdkDropListGroup>
+        @for (column of columns(); track column.status) {
+          <section
+            class="kanban-column"
+            [class.in-progress]="column.status === 'In progress'"
+            [class.completed]="column.status === 'Completed'"
+            [attr.aria-label]="column.status + ' actions'"
+          >
+            <header class="column-header">
+              <div>
+                <p class="column-kicker">Action status</p>
+                <h2>{{ column.status }}</h2>
+              </div>
+              <span class="column-count">
+                {{ column.actions.length }}
+              </span>
+            </header>
+
+            <div
+              class="drop-zone"
+              cdkDropList
+              [cdkDropListData]="column.status"
+              [cdkDropListSortingDisabled]="true"
+              [cdkDropListEnterPredicate]="canEnterColumn"
+              (cdkDropListDropped)="drop($event)"
+            >
+              @for (action of column.actions; track action.id) {
+                <article
+                  class="action-card"
+                  cdkDrag
+                  cdkDragPreviewContainer="parent"
+                  [cdkDragData]="action"
+                  [cdkDragDisabled]="!actionStore.canUpdateStatus(action)"
+                  [class.overdue]="isOverdue(action)"
+                >
+                  <div class="card-top">
+                    <span class="meeting-name">
+                      <mat-icon aria-hidden="true">event_note</mat-icon>
+                      {{ action.meetingTitle }}
+                    </span>
+
+                    @if (actionStore.canUpdateStatus(action)) {
+                      <span class="drag-handle" cdkDragHandle aria-label="Drag to change status">
+                        <mat-icon>drag_indicator</mat-icon>
+                      </span>
+                    }
+                  </div>
+
+                  <h3>{{ action.title }}</h3>
+
+                  <p class="owner">
+                    <mat-icon aria-hidden="true">person_outline</mat-icon>
+                    {{ action.assigneeName }}
+                  </p>
+
+                  <div class="due-date">
+                    <span>
+                      <mat-icon aria-hidden="true">calendar_today</mat-icon>
+                      Due
+                      <time [attr.datetime]="action.dueDate">
+                        {{ action.dueDate | date: 'mediumDate' }}
+                      </time>
+                    </span>
+
+                    @if (isOverdue(action)) {
+                      <span class="overdue-badge">Overdue</span>
+                    }
+                  </div>
+
+                  @if (actionStore.canUpdateStatus(action)) {
+                    <mat-form-field
+                      appearance="outline"
+                      class="status-field"
+                      subscriptSizing="dynamic"
+                    >
+                      <mat-label>Status</mat-label>
+
+                      <mat-select
+                        [value]="action.status"
+                        [aria-label]="'Status for ' + action.title"
+                        (selectionChange)="selectStatus(action, $event)"
+                      >
+                        @for (status of statuses; track status) {
+                          <mat-option [value]="status">
+                            {{ status }}
+                          </mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  } @else {
+                    <p class="read-only">View only</p>
+                  }
+
+                  <a mat-button [routerLink]="['/meetings', action.meetingId]">
+                    Open meeting
+                    <mat-icon>arrow_forward</mat-icon>
+                  </a>
+                </article>
+              } @empty {
+                <p class="column-empty">No actions in this column yet.</p>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    }
+  }
+</section>
