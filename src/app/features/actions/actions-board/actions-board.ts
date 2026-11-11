@@ -27,7 +27,9 @@ import { MeetingStore } from '../../meetings/data-access/meeting-store';
 import { MeetingActionStore } from '../../meetings/data-access/meeting-action-store';
 import { MOCK_MEMBERS } from '../../meetings/data-access/member.mock';
 import {
+  ACTION_PRIORITIES,
   ACTION_STATUSES,
+  ActionPriority,
   ActionStatus,
   MeetingAction,
 } from '../../meetings/models/meeting-action.model';
@@ -97,7 +99,9 @@ export class ActionsBoard {
   });
   private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
+  readonly priorities = ACTION_PRIORITIES;
 
+  readonly priorityFilter = signal<ActionPriority | ''>('');
   readonly canCreateAction = computed(() => {
     if (this.isMeetingScoped()) {
       const meeting = this.scopedMeeting();
@@ -138,6 +142,40 @@ export class ActionsBoard {
         this.message.set('Action created and saved in To do.');
       });
   }
+  openEditAction(action: MeetingAction): void {
+    if (!this.actionStore.canEdit(action)) {
+      return;
+    }
+
+    this.error.set('');
+    this.message.set('');
+
+    const dialogRef = this.dialog.open<ActionDialog, ActionDialogData, boolean>(ActionDialog, {
+      width: '560px',
+      maxWidth: '95vw',
+      data: {
+        meetingId: action.meetingId,
+        lockMeeting: true,
+        actionId: action.id,
+      },
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((saved) => {
+        if (!saved) {
+          return;
+        }
+
+        // An edited priority or owner might otherwise hide the card.
+        // Meeting scope from the URL is retained.
+        this.clearFilters();
+
+        this.boardHeading()?.nativeElement.focus();
+        this.message.set('Action updated and saved.');
+      });
+  }
   private readonly memberNames = new Map(MOCK_MEMBERS.map((member) => [member.id, member.name]));
 
   readonly cards = computed<readonly ActionCard[]>(() => {
@@ -160,7 +198,6 @@ export class ActionsBoard {
   });
 
   readonly filteredCards = computed(() => {
-    // An invalid meeting link must not display every meeting's actions.
     if (this.isMeetingScoped() && !this.scopedMeeting()) {
       return [];
     }
@@ -168,22 +205,27 @@ export class ActionsBoard {
     const meetingId = this.effectiveMeetingId();
     const query = this.search().trim().toLowerCase();
     const assigneeId = this.assigneeFilter();
+    const priority = this.priorityFilter();
     const onlyOverdue = this.overdueOnly();
 
     return this.cards()
       .filter((action) => {
         const matchesMeeting = meetingId === null || action.meetingId === meetingId;
 
-        const matchesSearch =
-          !query ||
-          `${action.title} ${action.meetingTitle} ${action.assigneeName}`
-            .toLowerCase()
-            .includes(query);
+        const searchableText = [
+          action.title,
+          action.description,
+          action.meetingTitle,
+          action.assigneeName,
+        ]
+          .join(' ')
+          .toLowerCase();
 
         return (
           matchesMeeting &&
-          matchesSearch &&
+          (!query || searchableText.includes(query)) &&
           (!assigneeId || action.assigneeId === assigneeId) &&
+          (!priority || action.priority === priority) &&
           (!onlyOverdue || this.isOverdue(action))
         );
       })
@@ -221,6 +263,7 @@ export class ActionsBoard {
       !!this.search().trim() ||
       this.meetingFilter() !== null ||
       !!this.assigneeFilter() ||
+      !!this.priorityFilter() ||
       this.overdueOnly(),
   );
 
@@ -232,6 +275,7 @@ export class ActionsBoard {
     this.search.set('');
     this.meetingFilter.set(null);
     this.assigneeFilter.set('');
+    this.priorityFilter.set('');
     this.overdueOnly.set(false);
   }
 

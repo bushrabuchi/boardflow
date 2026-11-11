@@ -378,12 +378,43 @@
     font-size: 0.95rem;
   }
 }
+.priority-badge {
+  display: inline-flex;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface-variant, #475569);
+}
 
+.priority-high {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.priority-low {
+  color: var(--mat-sys-primary, #6750a4);
+}
+.priority-medium {
+  color: var(--mat-sys-warning, #f2c94c);
+}
+.action-description {
+  margin-block: 0.75rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.updated-at {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+}
 .overdue-badge {
   padding: 0.25rem 0.5rem;
   border-radius: 999px;
-  background: var(--mat-sys-error-container, #fce3e0);
-  color: var(--mat-sys-on-error-container, #7f1d1d);
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
   font-size: 0.65rem;
   font-weight: 700;
 }

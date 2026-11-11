@@ -4,8 +4,15 @@
   </span>
   <div class="dialog-title-copy">
     <p class="eyebrow">Meeting follow-up</p>
-    <h2>Create an action</h2>
-    <p>Give a meeting decision an owner and a deadline.</p>
+    <h2>{{ isEditing ? 'Edit action' : 'Create an action' }}</h2>
+
+    <p>
+      {{
+        isEditing
+          ? 'Update the task details, owner and deadline.'
+          : 'Give a meeting decision an owner and a deadline.'
+      }}
+    </p>
   </div>
   <button mat-icon-button type="button" mat-dialog-close aria-label="Close dialog">
     <mat-icon>close</mat-icon>
@@ -38,7 +45,19 @@
           <mat-error>Choose a meeting.</mat-error>
         </mat-form-field>
       }
+      <mat-form-field appearance="outline">
+        <mat-label>Priority</mat-label>
 
+        <mat-select formControlName="priority">
+          @for (priority of priorities; track priority) {
+            <mat-option [value]="priority">
+              {{ priority }}
+            </mat-option>
+          }
+        </mat-select>
+
+        <mat-error>Choose a priority.</mat-error>
+      </mat-form-field>
       <mat-form-field appearance="outline" class="title-field">
         <mat-label>What needs to be done?</mat-label>
 
@@ -84,6 +103,21 @@
           <input matInput type="date" formControlName="dueDate" />
           <mat-error>Choose a due date.</mat-error>
         </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Description</mat-label>
+
+          <textarea
+            matInput
+            formControlName="description"
+            rows="4"
+            maxlength="2000"
+            placeholder="Explain the expected outcome or useful context"
+          ></textarea>
+
+          <mat-hint align="end"> {{ form.controls.description.value.length }} / 2000 </mat-hint>
+
+          <mat-error> Use 2,000 characters or fewer. </mat-error>
+        </mat-form-field>
       </div>
 
       @if (selectedMeetingId() !== null && participants().length === 0) {
@@ -107,10 +141,13 @@
     <button
       mat-flat-button
       type="submit"
-      [disabled]="availableMeetings().length === 0 || participants().length === 0"
+      [disabled]="form.disabled || availableMeetings().length === 0 || participants().length === 0"
     >
-      <mat-icon aria-hidden="true">add_task</mat-icon>
-      Save action
+      <mat-icon aria-hidden="true">
+        {{ isEditing ? 'save' : 'add_task' }}
+      </mat-icon>
+
+      {{ isEditing ? 'Save changes' : 'Save action' }}
     </button>
   </mat-dialog-actions>
 </form>

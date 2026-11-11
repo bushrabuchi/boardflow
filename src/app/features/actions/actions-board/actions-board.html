@@ -90,9 +90,28 @@
           Overdue only
         </button>
 
-        <button mat-button type="button" [disabled]="!hasFilters()" (click)="clearFilters()">
-          Clear filters
-        </button>
+        <mat-form-field appearance="outline">
+          <mat-label>Priority</mat-label>
+
+          <mat-select
+            [value]="priorityFilter()"
+            (selectionChange)="priorityFilter.set($event.value)"
+          >
+            <mat-option value="">All priorities</mat-option>
+
+            @for (priority of priorities; track priority) {
+              <mat-option [value]="priority">
+                {{ priority }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (isMeetingScoped()) {
+          <button mat-button type="button" [disabled]="!hasFilters()" (click)="clearFilters()">
+            Clear filters
+          </button>
+        }
       </div>
     </div>
   }
@@ -211,7 +230,34 @@
                         {{ action.dueDate | date: 'mediumDate' }}
                       </time>
                     </span>
-
+                    <p class="updated-at">
+                      Updated
+                      {{ action.updatedAt ?? action.createdAt | date: 'medium' }}
+                    </p>
+                    <span
+                      class="priority-badge"
+                      [class.priority-high]="action.priority === 'High'"
+                      [class.priority-medium]="action.priority === 'Medium'"
+                      [class.priority-low]="action.priority === 'Low'"
+                    >
+                      {{ action.priority ?? 'Medium' }} priority
+                    </span>
+                    @if (actionStore.canEdit(action)) {
+                      <button
+                        mat-button
+                        type="button"
+                        [attr.aria-label]="'Edit action: ' + action.title"
+                        (click)="openEditAction(action)"
+                      >
+                        <mat-icon aria-hidden="true">edit</mat-icon>
+                        Edit action
+                      </button>
+                    }
+                    @if (action.description) {
+                      <p class="action-description">
+                        {{ action.description }}
+                      </p>
+                    }
                     @if (isOverdue(action)) {
                       <span class="overdue-badge">Overdue</span>
                     }
