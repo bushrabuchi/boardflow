@@ -297,7 +297,10 @@ export class MeetingForm implements OnInit {
     const meeting = id === null ? this.store.create(input) : this.store.update(id, input);
 
     if (!meeting) {
-      this.saveError.set('This meeting is no longer editable. Your changes have not been saved.');
+      this.saveError.set(
+        this.store.mutationError() ||
+          'This meeting is no longer editable. Your changes have not been saved.',
+      );
       return;
     }
 
